@@ -159,8 +159,6 @@
                 </contributor>
 	</contributors>
 
-
-
 	<build>
 		<extensions>
 			<extension>
@@ -429,7 +427,7 @@
 			<url>gitsite:git@github.com/devopsfolks/podam.git</url>
 		</site>
 	</distributionManagement>
-
+	
 	<dependencies>
 		<dependency>
 			<groupId>net.jcip</groupId>
@@ -456,7 +454,7 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.6</version>
 		</dependency>
-	
+		
 		<!-- Testing dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -500,7 +498,7 @@
 			<version>1.0.2</version>
 			<scope>test</scope>
 		</dependency>
-
+	
 		<!-- Spring framework -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -514,7 +512,6 @@
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 
 		<!-- Serenity-BDD -->
 		<dependency>
@@ -536,7 +533,5 @@
 			</properties>
 		</profile>
 	</profiles>
-
-
 </project>
 
