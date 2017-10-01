@@ -40,7 +40,7 @@
 		<system>Jenkins</system>
 		<url>https://jemos.ci.cloudbees.com/job/podam/</url>
 	</ciManagement>
-
+	
 	<mailingLists>
 		<mailingList>
 			<name>PODAM - Google Groups</name>
@@ -454,6 +454,11 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.6</version>
 		</dependency>
+		<dependency>
+		    <groupId>org.eclipse.mylyn.github</groupId>
+		    <artifactId>org.eclipse.egit.github.core</artifactId>
+		    <version>3.1.0.201310021548-r</version>
+		</dependency>
 		
 		<!-- Testing dependencies -->
 		<dependency>
@@ -520,16 +525,7 @@
 			<version>${serenity.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
-		<!-- https://mvnrepository.com/artifact/org.eclipse.mylyn.github/org.eclipse.egit.github.core -->
-		<dependency>
-		    <groupId>org.eclipse.mylyn.github</groupId>
-		    <artifactId>org.eclipse.egit.github.core</artifactId>
-		    <version>2.1.5</version>
-		</dependency>
-
 	</dependencies>
-
 	<profiles>
 		<profile>
 			<id>doclint-java8</id>
