@@ -4,6 +4,7 @@ import net.thucydides.core.annotations.Step;
 import uk.co.jemos.podam.api.*;
 import uk.co.jemos.podam.common.AttributeStrategy;
 import uk.co.jemos.podam.test.dto.annotations.PojoSpecific;
+import uk.co.jemos.podam.test.dto.RecursivePojoWithList;
 import uk.co.jemos.podam.test.strategies.CustomRandomDataProviderStrategy;
 import uk.co.jemos.podam.test.unit.features.extensions.NonEJBClassInfoStrategy;
 import uk.co.jemos.podam.test.unit.features.externalFactory.TestExternalFactory;
@@ -107,6 +108,13 @@ public class PodamFactorySteps {
         return factory;
     }
 
+    @Step("Add a Custom Type Manufacturer {1} for type {0} from a Podam Factory")
+    public <T> PodamFactory addCustomTypeManufacturer(PodamFactory podamFactory, Class<T> type, TypeManufacturer<T> typeManufacturer) {
+
+        podamFactory.getStrategy().addOrReplaceTypeManufacturer(type, typeManufacturer);
+        return podamFactory;
+    }
+
     @Step("Given a ClassInfo for class {0} with empty attributes")
     public ClassInfo givenAClassInfoForPojoWithNoAttributes(Class<?> pojoClass, List<ClassAttribute> attributes) {
         return new ClassInfo(pojoClass, attributes);
@@ -159,8 +167,25 @@ public class PodamFactorySteps {
     }
 
     @Step("Given a Custom Data Provider Strategy")
-    public CustomDataProviderStrategy givenACustomDataProviderStrategy() {
+    public DataProviderStrategy givenACustomDataProviderStrategy() {
         return new CustomDataProviderStrategy();
+    }
+
+    @Step("Given a Custom Depth Data Provider Strategy")
+    public DataProviderStrategy givenACustomDepthDataProviderStrategy() {
+        return new AbstractRandomDataProviderStrategy() {
+
+            @Override
+            public int getMaxDepth(Class<?> type) {
+                if (RecursivePojoWithList.class.isAssignableFrom(type)) {
+                    return 2;
+                } else if (List.class.isAssignableFrom(type)) {
+                    return 2;
+                } else {
+                    return 1;
+                }
+            }
+        };
     }
 
     @Step("Given a Podam Factory with external factory and custom data provider strategy")
@@ -208,6 +233,14 @@ public class PodamFactorySteps {
         PodamFactory factory = new PodamFactoryImpl();
         ((RandomDataProviderStrategy)factory.getStrategy()).removeAttributeStrategy(annotation);
         return factory;
+    }
+
+    @Step("Add a custom strategy {1} from a Podam Factory for annotation {0}")
+    public PodamFactory addCustomStrategy(PodamFactory podamFactory,
+            Class<? extends Annotation> annotation, AttributeStrategy<?> strategy) {
+
+        ((RandomDataProviderStrategy)podamFactory.getStrategy()).addOrReplaceAttributeStrategy(annotation, strategy);
+        return podamFactory;
     }
 
     @Step("Given a Podam Factory with Defined Factory {1} for an Abstract Class {0}")

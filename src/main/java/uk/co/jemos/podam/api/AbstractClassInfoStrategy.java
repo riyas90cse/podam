@@ -392,7 +392,7 @@ public abstract class AbstractClassInfoStrategy implements ClassInfoStrategy,
 						pattern = GETTER_PATTERN;
 					} else if (method.getParameterTypes().length > 0
 							&& (method.getReturnType().equals(void.class)
-									|| method.getReturnType().equals(workClass))) {
+									|| method.getReturnType().isAssignableFrom(workClass))) {
 
 						pattern = SETTER_PATTERN;
 					} else {
@@ -450,7 +450,9 @@ public abstract class AbstractClassInfoStrategy implements ClassInfoStrategy,
 	 */
 	protected String extractFieldNameFromMethod(String methodName, Pattern pattern) {
 		String candidateField = pattern.matcher(methodName).replaceFirst("");
-		if (!candidateField.isEmpty() && !candidateField.equals(methodName)) {
+		if (!candidateField.isEmpty()
+			&& !candidateField.equals(methodName)
+			&& (candidateField.length() == 1 || !candidateField.toUpperCase().equals(candidateField))) {
 			candidateField = Character.toLowerCase(candidateField.charAt(0))
 					+ candidateField.substring(1);
 		}

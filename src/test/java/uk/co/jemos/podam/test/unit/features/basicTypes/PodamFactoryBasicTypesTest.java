@@ -37,9 +37,10 @@ public class PodamFactoryBasicTypesTest extends AbstractPodamSteps {
         podamValidationSteps.thePojoMustBeOfTheType(oneDimensionalTestPojo, OneDimensionalTestPojo.class);
 
         podamValidationSteps.thePojoShouldContainSomeData(oneDimensionalTestPojo);
-
+        
         oneDimentionalPojoValidationSteps.validateDimensionalTestPojo(oneDimensionalTestPojo, podamFactory.getStrategy());
 
+        podamValidationSteps.theStringFieldCannotBeNullOrEmpty(oneDimensionalTestPojo.getACRONYM());
     }
 
     @Test
@@ -94,6 +95,22 @@ public class PodamFactoryBasicTypesTest extends AbstractPodamSteps {
         podamInvocationSteps.whenIInvokeThePojoPopulationDirectly(pojo, podamFactory);
         recursivePojoValidationSteps.allPojosInTheRecursiveStrategyShouldBeValid(pojo);
 
+    }
+
+    @Test
+    @Title("Podam should fill recursive POJOs correctly, including all their list fields")
+    public void podamShouldFillRecursivePojosWithLists() throws Exception {
+
+        DataProviderStrategy strategy = podamFactorySteps.givenACustomDepthDataProviderStrategy();
+        PodamFactory podamFactory = podamFactorySteps.givenAPodamFactoryWithCustomDataProviderStrategy(strategy);
+        RecursivePojoWithList recursivePojo = podamInvocationSteps.whenIInvokeTheFactoryForClass(RecursivePojoWithList.class, podamFactory);
+        podamValidationSteps.thePojoMustBeOfTheType(recursivePojo, RecursivePojoWithList.class);
+        podamValidationSteps.thePojoMustBeOfTheType(recursivePojo.getRelated(), RecursivePojoWithList.class);
+        podamValidationSteps.theCollectionShouldNotBeNullOrEmptyAndContainElementsOfType(recursivePojo.getChildren(), RecursivePojoWithList.class);
+        for (RecursivePojoWithList child : recursivePojo.getChildren()) {
+            podamValidationSteps.thePojoShouldBeNull(child.getRelated());
+            podamValidationSteps.theCollectionShouldBeEmpty(child.getChildren());
+        }
     }
 
     @Test

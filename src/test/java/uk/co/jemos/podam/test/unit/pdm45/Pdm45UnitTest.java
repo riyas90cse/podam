@@ -63,6 +63,17 @@ public class Pdm45UnitTest {
 		for (GenericPojo<Double, Boolean> element : pojos.values()) {
 			validateGenericPojo(element, Double.class, Boolean.class);
 		}
+
+		Map<String, List> rawLists = pojo.getGenericRawLists();
+		for (Entry<String, List> entry : rawLists.entrySet()) {
+			String key = entry.getKey();
+			Assert.assertNotNull("Map key cannot be null", key);
+			List list = entry.getValue();
+			Assert.assertNotNull("Map value cannot be null", list);
+			for (Object item : list) {
+				Assert.assertNotNull("List element cannot be null", item);
+			}
+		}
 	}
 
 	@Test
@@ -202,6 +213,7 @@ public class Pdm45UnitTest {
 	/**
 	 * It validates a {@link MultiDimensionalTestPojo} collection.
 	 * 
+	 * @param <T> the type of the class to validate
 	 * @param collection the collection to validate
 	 * @param type the type of the class to validate
      */

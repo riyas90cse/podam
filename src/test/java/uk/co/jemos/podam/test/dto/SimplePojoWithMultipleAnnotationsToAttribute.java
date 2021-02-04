@@ -8,10 +8,14 @@ import org.hibernate.validator.constraints.Length;
 import uk.co.jemos.podam.common.PodamIntValue;
 import uk.co.jemos.podam.common.PodamStringValue;
 
+import javax.persistence.Basic;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Version;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 /**
  * @author sba45
@@ -35,6 +39,16 @@ public class SimplePojoWithMultipleAnnotationsToAttribute {
     @Version
     private Integer integerWithHibernateAnnotation;
 
+    @Basic
+    @Size(min = 7, max = 7)
+    private String stringFieldNoPodamAnnotation;
+
+    @Size(min = 3, max = 3)
+    @Basic
+    private String stringFieldBasicSecondAnnotation;
+
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private String stringFieldUnsupportedAnnotation;
 
     public String getStringField() {
         return stringField;
@@ -67,5 +81,29 @@ public class SimplePojoWithMultipleAnnotationsToAttribute {
 
     public void setIntegerWithHibernateAnnotation(Integer integerWithHibernateAnnotation) {
         this.integerWithHibernateAnnotation = integerWithHibernateAnnotation;
+    }
+
+    public String getStringFieldNoPodamAnnotation() {
+        return stringFieldNoPodamAnnotation;
+    }
+
+    public void setStringFieldNoPodamAnnotation(String stringFieldNoPodamAnnotation) {
+        this.stringFieldNoPodamAnnotation = stringFieldNoPodamAnnotation;
+    }
+
+    public String getStringFieldBasicSecondAnnotation() {
+        return stringFieldBasicSecondAnnotation;
+    }
+
+    public void setStringFieldBasicSecondAnnotation(String stringFieldBasicSecondAnnotation) {
+        this.stringFieldBasicSecondAnnotation = stringFieldBasicSecondAnnotation;
+    }
+
+    public String getStringFieldUnsupportedAnnotation() {
+        return stringFieldUnsupportedAnnotation;
+    }
+
+    public void setStringFieldUnsupportedAnnotation(String stringFieldUnsupportedAnnotation) {
+        this.stringFieldUnsupportedAnnotation = stringFieldUnsupportedAnnotation;
     }
 }

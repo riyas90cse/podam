@@ -95,6 +95,10 @@ public class ValidatedPojo {
 	@Digits(integer = 3, fraction = 2)
 	private BigDecimal fractionDecimal;
 
+	@DecimalMin("-9.5")
+	@DecimalMax("-5.5")
+	private BigDecimal rangeDecimal;
+
 	@Past
 	private Date pastDate;
 
@@ -120,6 +124,9 @@ public class ValidatedPojo {
 
 	@Email
 	private String email;
+
+	@AssertTrue
+	private Boolean boolPrimitive;
 
 	@Min(-5)
 	@Max(5)
@@ -277,6 +284,14 @@ public class ValidatedPojo {
 		this.fractionDecimal = fractionDecimal;
 	}
 
+	public BigDecimal getRangeDecimal() {
+		return rangeDecimal;
+	}
+
+	public void setRangeDecimal(BigDecimal rangeDecimal) {
+		this.rangeDecimal = rangeDecimal;
+	}
+
 	public Date getPastDate() {
 		return pastDate;
 	}
@@ -389,4 +404,13 @@ public class ValidatedPojo {
 	public void setFloatPrimitive(float floatPrimitive) {
 		this.floatPrimitive = floatPrimitive;
 	}
+
+	public boolean isBoolPrimitive() {
+		return boolPrimitive;
+	}
+
+	public void setBoolPrimitive(boolean boolPrimitive) {
+		this.boolPrimitive = boolPrimitive;
+	}
+
 }

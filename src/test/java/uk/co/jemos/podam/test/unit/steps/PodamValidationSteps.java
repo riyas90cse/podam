@@ -29,7 +29,7 @@ public class PodamValidationSteps {
 
     @Step("Then the Pojo should be null")
     public void thePojoShouldBeNull(Object pojo) {
-        Assert.assertNull("The pojo should be null", pojo);
+        assertThat(pojo, is(nullValue()));
     }
 
     @Step("Then the string {0} should match the pattern {1}")
@@ -267,7 +267,7 @@ public class PodamValidationSteps {
     }
 
     @Step("Then the collection should not be null or empty")
-    private void theCollectionShouldNotBeNullOrEmpty(Collection<?> collection) {
+    public void theCollectionShouldNotBeNullOrEmpty(Collection<?> collection) {
         Assert.assertNotNull("The collection should not be null", collection);
         assertThat("The collection should not be empty", collection, is(not(empty())));
     }
@@ -334,7 +334,7 @@ public class PodamValidationSteps {
     }
 
     @Step("Then the map should be empty")
-    public void theMapShouldBeEmtpy(Map<?, ?> map) {
+    public void theMapShouldBeEmpty(Map<?, ?> map) {
         assertThat("The Map should be empty", map.keySet(), is(empty()));
     }
 

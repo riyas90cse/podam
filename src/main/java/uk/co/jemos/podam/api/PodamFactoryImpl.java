@@ -12,13 +12,12 @@ import org.slf4j.LoggerFactory;
 
 import uk.co.jemos.podam.api.DataProviderStrategy.Order;
 import uk.co.jemos.podam.common.AttributeStrategy;
+import uk.co.jemos.podam.common.Holder;
 import uk.co.jemos.podam.common.ManufacturingContext;
 import uk.co.jemos.podam.common.PodamConstants;
 import uk.co.jemos.podam.common.PodamConstructor;
 import uk.co.jemos.podam.exceptions.PodamMockeryException;
 import uk.co.jemos.podam.typeManufacturers.TypeManufacturerUtil;
-
-import javax.xml.ws.Holder;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -1036,7 +1035,7 @@ public class PodamFactoryImpl implements PodamFactory {
 
 		// This needs to be generic because collections can be of any type
 		Collection<Object> defaultValue = null;
-		if (null != pojo && !Character.isDigit(attributeName.charAt(0))) {
+		if (null != pojo && null != attributeName && !Character.isDigit(attributeName.charAt(0))) {
 
 			defaultValue = PodamUtils.getFieldValue(pojo, attributeName);
 		}
@@ -1212,7 +1211,7 @@ public class PodamFactoryImpl implements PodamFactory {
 		Holder<AttributeStrategy<?>> keyStrategyHolder = null;
 		Integer nbrElements = TypeManufacturerUtil.findCollectionSize(strategy, annotations,
                 collectionElementType, elementStrategyHolder, keyStrategyHolder);
-		AttributeStrategy<?> elementStrategy = elementStrategyHolder.value;
+		AttributeStrategy<?> elementStrategy = elementStrategyHolder.getValue();
 
 		try {
 			if (collection.size() > nbrElements) {
@@ -1232,7 +1231,10 @@ public class PodamFactoryImpl implements PodamFactory {
 							collectionElementType, collectionElementType,
 							annotations, attributeName, NULL_TYPE_ARGS_MAP, genericTypeArgs);
 				}
-				collection.add(element);
+
+				if (null != element) {
+					collection.add(element);
+				}
 			}
 		} catch (UnsupportedOperationException e) {
 
@@ -1472,8 +1474,8 @@ public class PodamFactoryImpl implements PodamFactory {
 		Integer nbrElements = TypeManufacturerUtil.findCollectionSize(strategy, mapArguments.getAnnotations(),
                 mapArguments.getElementClass(), elementStrategyHolder,
                 keyStrategyHolder);
-		AttributeStrategy<?> keyStrategy = keyStrategyHolder.value;
-		AttributeStrategy<?> elementStrategy = elementStrategyHolder.value;
+		AttributeStrategy<?> keyStrategy = keyStrategyHolder.getValue();
+		AttributeStrategy<?> elementStrategy = elementStrategyHolder.getValue();
 
 		Map<? super Object, ? super Object> map = mapArguments.getMapToBeFilled();
 		try {
@@ -1506,8 +1508,7 @@ public class PodamFactoryImpl implements PodamFactory {
 
 				elementValue = getMapKeyOrElementValue(valueArguments, manufacturingCtx);
 
-				/* ConcurrentHashMap doesn't allow null values */
-				if (elementValue != null || !(map instanceof ConcurrentHashMap)) {
+				if (elementValue != null) {
 					map.put(keyValue, elementValue);
 				}
 			}
@@ -1638,7 +1639,7 @@ public class PodamFactoryImpl implements PodamFactory {
 		TypeManufacturerUtil.findCollectionSize(strategy,
 				annotations, elementType,
 				elementStrategyHolder, keyStrategyHolder);
-		AttributeStrategy<?> elementStrategy = elementStrategyHolder.value;
+		AttributeStrategy<?> elementStrategy = elementStrategyHolder.getValue();
 
 		int nbrElements = Array.getLength(array);
 		for (int i = 0; i < nbrElements; i++) {

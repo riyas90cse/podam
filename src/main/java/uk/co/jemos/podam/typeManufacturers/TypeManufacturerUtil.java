@@ -10,9 +10,10 @@ import uk.co.jemos.podam.api.PodamUtils;
 import uk.co.jemos.podam.common.*;
 
 import javax.validation.Constraint;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.xml.ws.Holder;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -59,9 +60,11 @@ public abstract class TypeManufacturerUtil {
             throws InstantiationException, IllegalAccessException, SecurityException, IllegalArgumentException, InvocationTargetException {
 
         List<Annotation> localAnnotations = new ArrayList<Annotation>(annotations);
-        Iterator<Annotation> iter = localAnnotations.iterator();
-        while (iter.hasNext()) {
-            Annotation annotation = iter.next();
+        List<Class<? extends Annotation>> annotationsToCheck = new ArrayList<Class<? extends Annotation>>();
+        List<Class<? extends Annotation>> constraintAnnotationsWithoutRegisteredStrategy = new ArrayList<Class<? extends Annotation>>();
+        Iterator<Annotation> localAnnotationsIter = localAnnotations.iterator();
+        while (localAnnotationsIter.hasNext()) {
+            Annotation annotation = localAnnotationsIter.next();
             if (annotation instanceof PodamStrategyValue) {
                 PodamStrategyValue strategyAnnotation = (PodamStrategyValue) annotation;
                 return strategyAnnotation.value().newInstance();
@@ -86,22 +89,55 @@ public abstract class TypeManufacturerUtil {
             AttributeStrategy<?> attrStrategy = strategy.getStrategyForAnnotation(annotationClass);
             if (null != attrStrategy) {
                 return attrStrategy;
+            } else {
+                for (Class<?> iface : annotationClass.getInterfaces()) {
+                    if (Annotation.class.isAssignableFrom(iface)) {
+                        @SuppressWarnings("unchecked")
+                        Class<? extends Annotation> tmp = (Class<? extends Annotation>) iface;
+                        annotationsToCheck.add(tmp);
+                    }
+                }
             }
 
             if (annotation.annotationType().getAnnotation(Constraint.class) != null) {
                 if (annotation instanceof NotNull ||
+                        annotation instanceof NotBlank ||
+                        annotation instanceof NotEmpty ||
                         annotation.annotationType().getName().equals("org.hibernate.validator.constraints.NotEmpty") ||
                         annotation.annotationType().getName().equals("org.hibernate.validator.constraints.NotBlank")) {
 					/* We don't need to do anything for NotNull constraint */
-                    iter.remove();
+                    localAnnotationsIter.remove();
                 } else if (!NotNull.class.getPackage().equals(annotationClass.getPackage())) {
-                    LOG.warn("Please, register AttributeStratergy for custom "
-                            + "constraint {}, in DataProviderStrategy! Value "
-                            + "will be left to null", annotation);
+                    constraintAnnotationsWithoutRegisteredStrategy.add(annotationClass);
                 }
             } else {
-                iter.remove();
+                localAnnotationsIter.remove();
             }
+        }
+
+        Iterator<Class<? extends Annotation>> annotationsToCheckIter = annotationsToCheck.iterator();
+        while (annotationsToCheckIter.hasNext()) {
+            Class<? extends Annotation> annotationClass = annotationsToCheckIter.next();
+            AttributeStrategy<?> attrStrategy = strategy.getStrategyForAnnotation(annotationClass);
+            if (null != attrStrategy) {
+                return attrStrategy;
+            } else {
+                for (Class<?> iface : annotationClass.getInterfaces()) {
+                    if (Annotation.class.isAssignableFrom(iface)) {
+                        @SuppressWarnings("unchecked")
+                        Class<? extends Annotation> tmp = (Class<? extends Annotation>) iface;
+                        annotationsToCheck.add(tmp);
+                    }
+                }
+            }
+        }
+
+        for (Class<? extends Annotation> constraintAnnotationWithoutRegisteredStrategy : constraintAnnotationsWithoutRegisteredStrategy) {
+            /* This message is logged only when no applicable strategy is found for given annotation - neither for
+             * the annotation itself nor for any interface it implements. */
+            LOG.warn("Please, register AttributeStrategy for custom "
+                + "constraint {}, in DataProviderStrategy! Value "
+                + "will be left to null", constraintAnnotationWithoutRegisteredStrategy);
         }
 
         AttributeStrategy<?> retValue = null;
@@ -293,7 +329,7 @@ public abstract class TypeManufacturerUtil {
                         attributeStrategy = collectionAnnotation.mapElementStrategy();
                     }
                     if (null != attributeStrategy) {
-                        elementStrategyHolder.value = attributeStrategy.newInstance();
+                        elementStrategyHolder.setValue(attributeStrategy.newInstance());
                     }
                 }
                 if (null != keyStrategyHolder) {
@@ -301,7 +337,7 @@ public abstract class TypeManufacturerUtil {
                     Class<? extends AttributeStrategy<?>> attributeStrategy
                             = collectionAnnotation.mapKeyStrategy();
                     if (null != attributeStrategy) {
-                        keyStrategyHolder.value = attributeStrategy.newInstance();
+                        keyStrategyHolder.setValue(attributeStrategy.newInstance());
                     }
                 }
                 return collectionAnnotation.nbrElements();

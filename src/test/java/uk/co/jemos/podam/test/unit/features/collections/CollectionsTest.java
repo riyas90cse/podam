@@ -146,19 +146,19 @@ public class CollectionsTest extends AbstractPodamSteps {
 
 
     @Test
-    @Title("Podam should be able to create instances of Sorted Maps")
+    @Title("Podam should be able to create instances of Sorted Maps with interface values")
     public void testSortedMapCreation() {
         testMap(SortedMap.class);
     }
 
     @Test
-    @Title("Podam should be able to create instances of Concurrent Hash Maps")
+    @Title("Podam should be able to create instances of Concurrent Hash Maps with interface values")
     public void testConcurrentMapCreation() {
         testMap(ConcurrentMap.class);
     }
 
     @Test
-    @Title("Podam should be able to create instances of Hash Maps")
+    @Title("Podam should be able to create instances of Hash Maps with interface values")
     public void testHashMapCreation() {
         testMap(Map.class);
     }
@@ -196,25 +196,16 @@ public class CollectionsTest extends AbstractPodamSteps {
 
     //------------------> Private methods
 
-    private void testMap(Class<? extends Map> mapType) {
+    @SuppressWarnings("rawtypes")
+    private void testMap(final Class<? extends Map> mapType) {
 
         PodamFactory podamFactory = podamFactorySteps.givenAStandardPodamFactory();
-
-        DataProviderStrategy strategy = podamFactory.getStrategy();
-
-        int mapSize = strategy.getNumberOfCollectionElements(PodamTestInterface.class);
-
-        if (ConcurrentMap.class.isAssignableFrom(mapType)) {
-            mapSize = 0;
-        }
 
         Map<?,?> pojo = podamInvocationSteps.whenIInvokeTheFactoryForGenericTypeWithSpecificType(
                 mapType, podamFactory, String.class, PodamTestInterface.class);
 
-
         podamValidationSteps.thePojoMustBeOfTheType(pojo, Map.class);
-        podamValidationSteps.theTwoObjectsShouldBeEqual(mapSize, pojo.keySet().size());
-        podamValidationSteps.theTwoObjectsShouldBeEqual(mapSize, pojo.values().size());
+        podamValidationSteps.theMapShouldBeEmpty(pojo);
     }
 
 

@@ -11,17 +11,21 @@ import uk.co.jemos.podam.test.dto.ExcludeAnnotationPojo;
 import uk.co.jemos.podam.test.dto.ImmutableNoHierarchicalAnnotatedPojo;
 import uk.co.jemos.podam.test.dto.SimplePojoWithMultipleAnnotationsToAttribute;
 import uk.co.jemos.podam.test.dto.annotations.*;
+import uk.co.jemos.podam.test.strategies.AnnotationStrategy;
 import uk.co.jemos.podam.test.strategies.ByteArrayStrategy;
 import uk.co.jemos.podam.test.unit.AbstractPodamSteps;
 import uk.co.jemos.podam.test.utils.PodamTestConstants;
 import uk.co.jemos.podam.test.utils.PodamTestUtils;
 
+import java.lang.annotation.Annotation;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.persistence.Basic;
 
 /**
  * Created by tedonema on 31/05/2015.
@@ -525,5 +529,28 @@ public class AnnotationsTest extends AbstractPodamSteps {
         podamValidationSteps.thePojoMustBeOfTheType(pojo.getIntegerWithHibernateAnnotation(), Integer.class);
         podamValidationSteps.theTwoObjectsShouldBeEqual("stringFieldWithPatternRegex", pojo.getStringFieldWithPatternAnnotation());
         podamValidationSteps.theTwoObjectsShouldBeEqual("testString", pojo.getStringFieldWithHibernateAnnotation());
+        podamValidationSteps.theStringValueShouldHaveTheExactLengthOf(pojo.getStringFieldNoPodamAnnotation(), 7);
+
+    }
+
+    @Test
+    @Title("Podam should handle POJOs with multiple annotated fields and custom generic annotation strategy")
+    public void podamShouldHandlePojosWithAnnotatedFieldsAndCustomGenericAnnotationStrategy() throws Exception {
+        AnnotationStrategy annotationStrategy = new AnnotationStrategy();
+        PodamFactory podamFactory = podamFactorySteps.givenAPodamFactoryWithCustomStrategy(Annotation.class, annotationStrategy);
+        AnnotationStrategy basicAnnotationStrategy = new AnnotationStrategy();
+        podamFactorySteps.addCustomStrategy(podamFactory, Basic.class, basicAnnotationStrategy);
+        SimplePojoWithMultipleAnnotationsToAttribute pojo = podamInvocationSteps.whenIInvokeTheFactoryForClass(SimplePojoWithMultipleAnnotationsToAttribute.class, podamFactory);
+        podamValidationSteps.theObjectShouldNotBeNull(pojo);
+        podamValidationSteps.theCollectionShouldNotBeNullOrEmptyAndShouldHaveExactlyTheExpectedNumberOfElements(
+                annotationStrategy.getRecordedCalls(), List.class, 1);
+        podamValidationSteps.theCollectionShouldNotBeNullOrEmptyAndShouldHaveExactlyTheExpectedNumberOfElements(
+                annotationStrategy.getRecordedCalls().get(0), Annotation.class, 1);
+        podamValidationSteps.theCollectionShouldNotBeNullOrEmptyAndShouldHaveExactlyTheExpectedNumberOfElements(
+                basicAnnotationStrategy.getRecordedCalls(), List.class, 2);
+        podamValidationSteps.theCollectionShouldNotBeNullOrEmptyAndShouldHaveExactlyTheExpectedNumberOfElements(
+                basicAnnotationStrategy.getRecordedCalls().get(0), Annotation.class, 2);
+        podamValidationSteps.theCollectionShouldNotBeNullOrEmptyAndShouldHaveExactlyTheExpectedNumberOfElements(
+                basicAnnotationStrategy.getRecordedCalls().get(1), Annotation.class, 2);
     }
 }
